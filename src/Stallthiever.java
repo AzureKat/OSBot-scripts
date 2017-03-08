@@ -46,12 +46,10 @@ public final class Stallthiever extends Script {
                 }
                 log("test shit");
                 sleep(2000);
-                doAntiBan();
                 break;
             case DROP:
                 inventory.dropAll();
                 doAntiBan();
-                sleep(random(2000,3000));
                 break;
             case WAIT:
                 sleep(random(500,700));
@@ -60,8 +58,7 @@ public final class Stallthiever extends Script {
     }
 
     private void doAntiBan() throws InterruptedException {
-        log("shit doesnt work");
-        switch (random(1, 6)) {
+        switch (random(1, 30)) {
             case 1:
                 getTabs().open(Tab.SKILLS);
                 getSkills().hoverSkill(Skill.THIEVING);
