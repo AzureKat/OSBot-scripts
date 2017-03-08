@@ -15,8 +15,6 @@ public final class ScriptName extends Script {
 
     @Override
     public final void onStart() {
-        Entity tree = null;
-        tree = objects.closest("Oak");
         log("This is a test script");
     }
 
@@ -41,10 +39,6 @@ public final class ScriptName extends Script {
     @Override
     public final int onLoop() throws InterruptedException {
 
-        Interactable oakTree = null;
-        oakTree = objects.closest("Oak");
-        int Log = 1521;
-
         switch(getState()) {
             case CHOP:
                 Entity pippeli = objects.closest("Oak");
@@ -57,7 +51,8 @@ public final class ScriptName extends Script {
 
             case DROP:
                 if(inventory.isFull()){
-                    inventory.dropAll(Log);
+                    inventory.dropAll();
+                    sleep(random(300,700));
                 }
                 break;
 
