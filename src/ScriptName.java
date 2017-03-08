@@ -1,12 +1,9 @@
-import org.osbot.Lo;
+import org.osbot.rs07.api.Objects;
 import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.Interactable;
-import org.osbot.rs07.api.ui.Message;
-import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
-
-import java.awt.*;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 @ScriptManifest(name = "pip", author = "lul", version = 1.0, info = "", logo = "")
 public final class ScriptName extends Script {
@@ -18,18 +15,22 @@ public final class ScriptName extends Script {
 
     @Override
     public final void onStart() {
+        Entity tree = null;
+        tree = objects.closest("Oak");
         log("This is a test script");
     }
 
 
     private State getState(){
-        Entity check = objects.closest("Oak Tree");
+
+        Entity tree = null;
+        tree = objects.closest("Oak");
 
         if(inventory.isFull()){
             return State.DROP;
         }
 
-        if(check != null){
+        if(tree != null && !myPlayer().isAnimating() && !myPlayer().isMoving()){
             return State.CHOP;
         }
 
@@ -40,22 +41,23 @@ public final class ScriptName extends Script {
     @Override
     public final int onLoop() throws InterruptedException {
 
-        Interactable tree = null;
-        tree = objects.closest("Oak Tree");
-        int Log = 3511;
+        Interactable oakTree = null;
+        oakTree = objects.closest("Oak");
+        int Log = 1521;
 
         switch(getState()) {
             case CHOP:
-                tree = objects.closest("Oak Tree");
-                if(tree != null){
-                    tree.interact("Chop Down");
+                Entity pippeli = objects.closest("Oak");
+                if (pippeli != null && !myPlayer().isAnimating() && !myPlayer().isMoving()){
+                    pippeli = objects.closest("Oak");
+                    pippeli.interact("Chop down");
+                    sleep(random(700,900));
                 }
-                sleep(random(1000));
                 break;
 
             case DROP:
                 if(inventory.isFull()){
-                    inventory.drop(Log);
+                    inventory.dropAll(Log);
                 }
                 break;
 
@@ -63,18 +65,12 @@ public final class ScriptName extends Script {
                 sleep(random(3000, 7000));
                 break;
         }
-        return 0;
+        return random(200, 300);
     }
-
-
 
     @Override
     public final void onExit() {
         log("Script exiting");
     }
-
-
-
-
 
 }
