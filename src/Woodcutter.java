@@ -4,14 +4,18 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 
 import org.osbot.rs07.api.model.Entity;
+import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 @ScriptManifest(name = "big boy cutter", author = "x7599", version = 1.0, info = "eater", logo = " ")
 public class Cutter extends Script {
 
-    private long startTime = System.currentTimeMillis();
-    final long runTime = System.currentTimeMillis() - startTime;
+    private long timeBegan;
+    private long timeRan;
+    private int beginningXP;
+    private int currentXP;
+    private int xpGained;
     private String status = "Starting..";
 
     int axe = 1351;
@@ -22,7 +26,8 @@ public class Cutter extends Script {
 
     @Override
     public final void onStart() {
-
+        beginningXP = skills.getExperience(Skill.WOODCUTTING);
+        timeBegan = System.currentTimeMillis();
         log("Starting..");
     }
 
@@ -76,13 +81,17 @@ public class Cutter extends Script {
 
     @Override
     public void onPaint(Graphics2D g) {
+        timeRan = System.currentTimeMillis() - this.timeBegan;
+        currentXP = skills.getExperience(Skill.WOODCUTTING);
+        xpGained = currentXP - beginningXP;
         g.setColor(Color.BLACK);
         g.setFont(new Font("Dialog", 1, 15));
         Point mP = getMouse().getPosition();
         g.drawLine(mP.x - 5, mP.y + 5, mP.x + 5, mP.y - 5);
         g.drawLine(mP.x + 5, mP.y + 5, mP.x - 5, mP.y - 5);
-        g.drawString("" + formatTime(runTime), 298, 409);
+        g.drawString("" + formatTime(timeRan), 298, 409);
         g.drawString("" + status, 298, 423);
+        g.drawString("" + xpGained, 298, 437);
     }
 
     public final String formatTime(final long ms){
