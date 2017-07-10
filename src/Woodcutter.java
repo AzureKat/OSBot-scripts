@@ -1,106 +1,97 @@
-import org.osbot.rs07.api.Objects;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
 import org.osbot.rs07.api.model.Entity;
-import org.osbot.rs07.api.model.Interactable;
-import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
-import org.osbot.rs07.utility.ConditionalSleep;
 
-@ScriptManifest(name = "pip", author = "lul", version = 1.0, info = "", logo = "")
-public final class Woodcutter extends Script {
+@ScriptManifest(name = "big boy cutter", author = "x7599", version = 1.0, info = "eater", logo = " ")
+public class Cutter extends Script {
 
+    private long startTime = System.currentTimeMillis();
+    final long runTime = System.currentTimeMillis() - startTime;
+    private String status = "Starting..";
+
+    int axe = 1351;
 
     private enum State {
-        CHOP, DROP, WAIT
+        CUT, DROP, WAIT
     }
 
     @Override
     public final void onStart() {
-        log("This is a test script");
+
+        log("Starting..");
     }
 
+    private State getState() {
 
-    private State getState(){
-
-        if(inventory.isFull()){
+        if (!getInventory().isFull()) {
+            return State.CUT;
+        }
+        if (getInventory().isFull()) {
             return State.DROP;
         }
-
-        if(tree != null && !myPlayer().isAnimating() && !myPlayer().isMoving()){
-            return State.CHOP;
-        }
-
         return State.WAIT;
-
     }
 
-    @Override
     public final int onLoop() throws InterruptedException {
+        switch (getState()) {
+            case CUT:
+                if (!myPlayer().isAnimating()) {
+                    Entity oakTree = getObjects().closest("Oak");
+                    if (oakTree != null && oakTree.interact("Chop down")){
+                        sleep(random(500, 1500));
+                        getMouse().moveOutsideScreen();
+                        new Sleep(() -> myPlayer().isAnimating() || !oakTree.exists(), 6500).sleep();
+                    }
+                    if(getDialogues().inDialogue() || getDialogues().isPendingContinuation()){
+                        getDialogues().clickContinue();
+                        Sleep.sleepUntil(() -> !getDialogues().inDialogue(), 2500);
+                    }
+                    if(oakTree == null){
+                        Sleep.sleepUntil(() -> oakTree.exists(), 7000);
+                    }
+                }
 
-        switch(getState()) {
-            Entity tree = getObjects().closest("Oak");
-            case CHOP:
-                if(tree != null && tree.interact("Chop down")) {
-                    new Sleep(() -> myPlayer().isAnimating() || !tree.exists(), 5000).sleep();
-                }
-                break;
             case DROP:
-                if(inventory.isFull()){
-                    inventory.dropAll();
-                    doAntiBan();
-                    sleep(random(300,700));
+                if (getInventory().isFull()) {
+                    sleep(random(300, 700));
+                    getInventory().dropAllExcept(axe);
+                    sleep(random(700, 1500));
                 }
-                break;
+
             case WAIT:
                 sleep(random(3000, 7000));
-                break;
         }
+
         return random(200, 300);
     }
 
-    @Override
     public final void onExit() {
-        log("Script exiting");
+        log("Exiting..");
     }
 
-    private void doAntiBan() throws InterruptedException {
-        switch (random(1, 30)) {
-            case 1:
-                getTabs().open(Tab.SKILLS);
-                getSkills().hoverSkill(Skill.WOODCUTTING);
-                sleep(random(100, 6000));
-                log("Antiban");
-                break;
-
-            case 2:
-                this.camera.movePitch(random(150,360));
-                this.camera.moveYaw(random(100, 250));
-                log("Camera antiban");
-                break;
-
-            case 3:
-                this.camera.movePitch(random(22, 67));
-                log("Camera antiban2 only pitch");
-                break;
-
-            case 4:
-                this.camera.moveYaw(random(75, 250));
-                log("Camera antiban3 only yaw");
-                break;
-
-            case 5:
-                this.mouse.moveRandomly();
-                log("Mouse antiban");
-                break;
-
-            case 6:
-                this.mouse.move(random(150, 275), random(75, 200));
-                log("Mouse preset antiban");
-                break;
-
-        }
-        sleep(random(700, 1800));
-        getTabs().open(Tab.INVENTORY);
+    @Override
+    public void onPaint(Graphics2D g) {
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Dialog", 1, 15));
+        Point mP = getMouse().getPosition();
+        g.drawLine(mP.x - 5, mP.y + 5, mP.x + 5, mP.y - 5);
+        g.drawLine(mP.x + 5, mP.y + 5, mP.x - 5, mP.y - 5);
+        g.drawString("" + formatTime(runTime), 298, 409);
+        g.drawString("" + status, 298, 423);
     }
 
+    public final String formatTime(final long ms){
+        long s = ms / 1000, m = s / 60, h = m / 60, d = h / 24;
+        s %= 60; m %= 60; h %= 24;
+
+        return d > 0 ? String.format("%02d:%02d:%02d:%02d", d, h, m, s) :
+                h > 0 ? String.format("%02d:%02d:%02d", h, m, s) :
+                        String.format("%02d:%02d", m, s);
+    }
 }
+
