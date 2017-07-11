@@ -89,9 +89,9 @@ public class Cutter extends Script {
         Point mP = getMouse().getPosition();
         g.drawLine(mP.x - 5, mP.y + 5, mP.x + 5, mP.y - 5);
         g.drawLine(mP.x + 5, mP.y + 5, mP.x - 5, mP.y - 5);
-        g.drawString("" + formatTime(timeRan), 298, 409);
-        g.drawString("" + status, 298, 423);
-        g.drawString("" + xpGained, 298, 437);
+        g.drawString("Time ran: " + formatTime(timeRan), 298, 409);
+        g.drawString("Status: " + status, 298, 423);
+        g.drawString("Experience gained: " + xpGained, 298, 437);
     }
 
     public final String formatTime(final long ms){
@@ -103,4 +103,3 @@ public class Cutter extends Script {
                         String.format("%02d:%02d", m, s);
     }
 }
-
