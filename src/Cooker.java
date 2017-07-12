@@ -11,11 +11,10 @@ public class Cooker extends Script {
 
     int rLobster = 377;
     int cLobster = 379;
-    int bLobster = 381;
     Area cookingarea = new Area(3275, 3179, 3272, 3180);
 
     private enum State {
-        COOK, WALKTOBANK, WAIT, WITHDRAW, DEPOSIT, WALKTOAREA
+        COOK, WALKTOBANK, WAIT, WITHDRAW, DEPOSIT, WALKTOAREA, QUIT
     }
 
     @Override
@@ -69,15 +68,22 @@ public class Cooker extends Script {
                 }
 
             case COOK:
-                if(cookingarea.contains(myPosition()) && getInventory().contains(rLobster) && !myPlayer().isAnimating() && getWidgets().getWidgetContainingText("How many would you like to") == null){
+                if(cookingarea.contains(myPosition()) && getInventory().contains(rLobster) && !myPlayer().isAnimating()){
                     RS2Widget lobOption = getWidgets().get(307, 3);
-                    getInventory().interact("Use", rLobster);
-                    sleep(random(300, 850));
-                    getObjects().closest("Range").interact("Use");
-                    Sleep.sleepUntil(() -> getWidgets().getWidgetContainingText("How many would you like to") != null, 2500);
-                    getWidgets().getWidgetContainingText("Raw lobster").interact("Cook All");
-                    getMouse().moveOutsideScreen();
-                    Sleep.sleepUntil(() -> !getInventory().contains(rLobster), 2500);
+                    if(getWidgets().getWidgetContainingText("How many would you like to") == null){
+                        getInventory().interact("Use", rLobster);
+                        sleep(random(300, 850));
+                        getObjects().closest("Range").interact("Use");
+                        Sleep.sleepUntil(() -> getWidgets().getWidgetContainingText("How many would you like to") != null, 2500);
+                        getWidgets().getWidgetContainingText("Raw lobster").interact("Cook All");
+                        getMouse().moveOutsideScreen();
+                        Sleep.sleepUntil(() -> !getInventory().contains(rLobster), 2500);
+                    }
+                    if(getWidgets().getWidgetContainingText("How many would you like to") != null){
+                        getWidgets().getWidgetContainingText("Raw lobster").interact("Cook All");
+                        getMouse().moveOutsideScreen();
+                        Sleep.sleepUntil(() -> !getInventory().contains(rLobster), 2500);
+                    }
                 }
 
             case WALKTOBANK:
@@ -87,7 +93,7 @@ public class Cooker extends Script {
                 }
 
             case DEPOSIT:
-                if(!getInventory().contains(rLobster) && Banks.AL_KHARID.contains(myPosition())){
+                if(!getInventory().contains(rLobster) && Banks.AL_KHARID.contains(myPosition()) && getBank().contains(rLobster)){
                     Entity bank = getObjects().closest("Bank booth");
                     if(bank != null && bank.exists()){
                         bank.interact("Bank");
@@ -95,6 +101,16 @@ public class Cooker extends Script {
                         sleep(random(300, 700));
                         getBank().depositAll();
                         Sleep.sleepUntil(() -> getInventory().isEmpty(), 2500);
+                    }
+                }
+
+            case QUIT:
+                if(!getBank().contains(rLobster)){
+                    if(getBank().isOpen()){
+                        getBank().close();
+                        Sleep.sleepUntil(() -> !getBank().isOpen(), 2500);
+                        random(300, 700);
+                        getLogoutTab().logOut();
                     }
                 }
         }
