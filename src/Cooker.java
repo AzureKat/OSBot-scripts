@@ -55,7 +55,7 @@ public class Cooker extends Script {
                         getBank().withdrawAll(rLobster);
                         sleep(random(300, 950));
                     }
-                    if(bank != null & bank.exists()){
+                    if(bank != null && bank.exists() && !getBank().isOpen()){
                         bank.interact("Bank");
                         Sleep.sleepUntil(() -> getBank().isOpen(), 2500);
                         sleep(random(300, 950));
