@@ -69,7 +69,7 @@ public class Cooker extends Script {
                 }
 
             case COOK:
-                if(cookingarea.contains(myPosition()) && getInventory().contains(rLobster) && !myPlayer().isAnimating()){
+                if(cookingarea.contains(myPosition()) && getInventory().contains(rLobster) && !myPlayer().isAnimating() && getWidgets().getWidgetContainingText("How many would you like to") == null){
                     RS2Widget lobOption = getWidgets().get(307, 3);
                     getInventory().interact("Use", rLobster);
                     sleep(random(300, 850));
